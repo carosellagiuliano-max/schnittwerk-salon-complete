@@ -104,6 +104,9 @@ def init_database():
         db.commit()
         print("Database initialized successfully!")
         
+        from .migrate_products import migrate_products
+        migrate_products()
+        
     except Exception as e:
         print(f"Error initializing database: {e}")
         db.rollback()

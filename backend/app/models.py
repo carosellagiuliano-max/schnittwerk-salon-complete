@@ -78,3 +78,25 @@ class StylistAvailability(Base):
     is_active = Column(Boolean, default=True)
 
     stylist = relationship("Stylist", back_populates="availability")
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(Text)
+    detailed_description = Column(Text)
+    usage = Column(Text)
+    price = Column(String, nullable=False)
+    image = Column(String, nullable=False)
+    category = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class ProductCategory(Base):
+    __tablename__ = "product_categories"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

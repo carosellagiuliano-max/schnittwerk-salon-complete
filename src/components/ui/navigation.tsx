@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, Instagram, Phone, ShoppingCart, Users } from 'lucide-react';
+import { Menu, X, Instagram, Phone, ShoppingCart, Users, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AppointmentBookingDialog } from '@/components/booking/appointment-booking-dialog';
 import LoginModal from '@/components/auth/LoginModal';
@@ -8,9 +8,11 @@ import CategoryNavDialog from '@/components/booking/category-nav-dialog';
 import CartDialog from '@/components/booking/cart-dialog';
 import VanessaProfileDialog from '@/components/booking/vanessa-profile-dialog';
 import { useCart } from '@/contexts/cart-context';
+import { useAuth } from '@/contexts/auth-context';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
   const { totalItems } = useCart();
 
   const navItems = [
@@ -89,14 +91,40 @@ const Navigation = () => {
                 )}
               </button>
             </CartDialog>
-            <LoginModal>
-              <Button 
-                size="sm" 
-                className="bg-black text-white hover:bg-gray-800"
-              >
-                Login
-              </Button>
-            </LoginModal>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-foreground text-sm">
+                  Willkommen, {user?.first_name}
+                </span>
+                {user?.is_admin && (
+                  <Link to="/admin">
+                    <Button 
+                      size="sm" 
+                      className="bg-gray-800 text-white hover:bg-gray-700"
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Admin
+                    </Button>
+                  </Link>
+                )}
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={logout}
+                >
+                  Abmelden
+                </Button>
+              </div>
+            ) : (
+              <LoginModal>
+                <Button 
+                  size="sm" 
+                  className="bg-black text-white hover:bg-gray-800"
+                >
+                  Login
+                </Button>
+              </LoginModal>
+            )}
             <AppointmentBookingDialog>
               <Button 
                 size="sm" 

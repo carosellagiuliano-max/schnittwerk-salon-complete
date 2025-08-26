@@ -115,3 +115,189 @@ async def delete_service(
     db.commit()
     
     return {"message": "Service deleted successfully"}
+
+@router.get("/products", response_model=List[schemas.Product])
+async def get_all_products(
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    products = db.query(models.Product).all()
+    return products
+
+@router.post("/products", response_model=schemas.Product)
+async def create_product(
+    product: schemas.ProductBase,
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    db_product = models.Product(**product.dict())
+    db.add(db_product)
+    db.commit()
+    db.refresh(db_product)
+    return db_product
+
+@router.put("/products/{product_id}", response_model=schemas.Product)
+async def update_product(
+    product_id: int,
+    product: schemas.ProductBase,
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not db_product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    for key, value in product.dict().items():
+        setattr(db_product, key, value)
+    
+    db.commit()
+    db.refresh(db_product)
+    return db_product
+
+@router.delete("/products/{product_id}")
+async def delete_product(
+    product_id: int,
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    db_product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not db_product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
+    db_product.is_active = False
+    db.commit()
+    
+    return {"message": "Product deleted successfully"}
+
+@router.get("/product-categories", response_model=List[schemas.ProductCategory])
+async def get_product_categories(
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    categories = db.query(models.ProductCategory).all()
+    return categories
+
+@router.post("/product-categories", response_model=schemas.ProductCategory)
+async def create_product_category(
+    category: schemas.ProductCategoryBase,
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    db_category = models.ProductCategory(**category.dict())
+    db.add(db_category)
+    db.commit()
+    db.refresh(db_category)
+    return db_category
+
+@router.get("/stylists", response_model=List[schemas.Stylist])
+async def get_all_stylists(
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    stylists = db.query(models.Stylist).all()
+    return stylists
+
+@router.post("/stylists", response_model=schemas.Stylist)
+async def create_stylist(
+    stylist: schemas.StylistBase,
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    db_stylist = models.Stylist(**stylist.dict())
+    db.add(db_stylist)
+    db.commit()
+    db.refresh(db_stylist)
+    return db_stylist
+
+@router.put("/stylists/{stylist_id}", response_model=schemas.Stylist)
+async def update_stylist(
+    stylist_id: int,
+    stylist: schemas.StylistBase,
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    db_stylist = db.query(models.Stylist).filter(models.Stylist.id == stylist_id).first()
+    if not db_stylist:
+        raise HTTPException(status_code=404, detail="Stylist not found")
+    
+    for key, value in stylist.dict().items():
+        setattr(db_stylist, key, value)
+    
+    db.commit()
+    db.refresh(db_stylist)
+    return db_stylist
+
+@router.delete("/stylists/{stylist_id}")
+async def delete_stylist(
+    stylist_id: int,
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    db_stylist = db.query(models.Stylist).filter(models.Stylist.id == stylist_id).first()
+    if not db_stylist:
+        raise HTTPException(status_code=404, detail="Stylist not found")
+    
+    db_stylist.is_active = False
+    db.commit()
+    
+    return {"message": "Stylist deleted successfully"}
+
+@router.get("/stylist-availability/{stylist_id}", response_model=List[schemas.StylistAvailability])
+async def get_stylist_availability(
+    stylist_id: int,
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    availability = db.query(models.StylistAvailability).filter(
+        models.StylistAvailability.stylist_id == stylist_id
+    ).all()
+    return availability
+
+@router.post("/stylist-availability", response_model=schemas.StylistAvailability)
+async def create_stylist_availability(
+    availability: schemas.StylistAvailabilityBase,
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    db_availability = models.StylistAvailability(**availability.dict())
+    db.add(db_availability)
+    db.commit()
+    db.refresh(db_availability)
+    return db_availability
+
+@router.put("/stylist-availability/{availability_id}", response_model=schemas.StylistAvailability)
+async def update_stylist_availability(
+    availability_id: int,
+    availability: schemas.StylistAvailabilityBase,
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    db_availability = db.query(models.StylistAvailability).filter(
+        models.StylistAvailability.id == availability_id
+    ).first()
+    if not db_availability:
+        raise HTTPException(status_code=404, detail="Availability not found")
+    
+    for key, value in availability.dict().items():
+        setattr(db_availability, key, value)
+    
+    db.commit()
+    db.refresh(db_availability)
+    return db_availability
+
+@router.delete("/stylist-availability/{availability_id}")
+async def delete_stylist_availability(
+    availability_id: int,
+    current_admin: models.User = Depends(get_current_admin_user),
+    db: Session = Depends(get_db)
+):
+    db_availability = db.query(models.StylistAvailability).filter(
+        models.StylistAvailability.id == availability_id
+    ).first()
+    if not db_availability:
+        raise HTTPException(status_code=404, detail="Availability not found")
+    
+    db_availability.is_active = False
+    db.commit()
+    
+    return {"message": "Availability deleted successfully"}

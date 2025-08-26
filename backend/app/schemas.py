@@ -92,3 +92,44 @@ class AvailabilitySlot(BaseModel):
     stylist_id: int
     stylist_name: str
     available: bool
+
+class ProductBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    detailed_description: Optional[str] = None
+    usage: Optional[str] = None
+    price: str
+    image: str
+    category: str
+
+class Product(ProductBase):
+    id: int
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ProductCategoryBase(BaseModel):
+    name: str
+
+class ProductCategory(ProductCategoryBase):
+    id: int
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class StylistAvailabilityBase(BaseModel):
+    stylist_id: int
+    day_of_week: int
+    start_time: str
+    end_time: str
+
+class StylistAvailability(StylistAvailabilityBase):
+    id: int
+    is_active: bool
+
+    class Config:
+        from_attributes = True

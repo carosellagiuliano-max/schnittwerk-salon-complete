@@ -138,6 +138,34 @@ class ApiService {
     return response.json()
   }
 
+  async createService(serviceData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/services`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(serviceData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create service')
+    }
+
+    return response.json()
+  }
+
+  async updateService(serviceId: number, serviceData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/services/${serviceId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(serviceData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to update service')
+    }
+
+    return response.json()
+  }
+
   async getAvailability(date: string, serviceId: number): Promise<AvailabilitySlot[]> {
     const response = await fetch(
       `${API_BASE_URL}/api/appointments/availability?date=${date}&service_id=${serviceId}`
@@ -178,6 +206,216 @@ class ApiService {
 
   async cancelAppointment(appointmentId: number): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/api/appointments/${appointmentId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to cancel appointment')
+    }
+  }
+
+  async getProducts(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/products`, {
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch products')
+    }
+
+    return response.json()
+  }
+
+  async createProduct(productData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/products`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(productData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create product')
+    }
+
+    return response.json()
+  }
+
+  async updateProduct(productId: number, productData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/products/${productId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(productData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to update product')
+    }
+
+    return response.json()
+  }
+
+  async deleteProduct(productId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/products/${productId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to delete product')
+    }
+  }
+
+  async getStylists(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/stylists`, {
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch stylists')
+    }
+
+    return response.json()
+  }
+
+  async createStylist(stylistData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/stylists`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(stylistData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create stylist')
+    }
+
+    return response.json()
+  }
+
+  async updateStylist(stylistId: number, stylistData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/stylists/${stylistId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(stylistData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to update stylist')
+    }
+
+    return response.json()
+  }
+
+  async deleteStylist(stylistId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/stylists/${stylistId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to delete stylist')
+    }
+  }
+
+  async getStylistAvailability(stylistId: number): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/stylist-availability/${stylistId}`, {
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch stylist availability')
+    }
+
+    return response.json()
+  }
+
+  async createStylistAvailability(availabilityData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/stylist-availability`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(availabilityData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to create availability')
+    }
+
+    return response.json()
+  }
+
+  async updateStylistAvailability(availabilityId: number, availabilityData: any): Promise<any> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/stylist-availability/${availabilityId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(availabilityData)
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to update availability')
+    }
+
+    return response.json()
+  }
+
+  async deleteStylistAvailability(availabilityId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/stylist-availability/${availabilityId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to delete availability')
+    }
+  }
+
+  async getAdminAppointments(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/appointments`, {
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch admin appointments')
+    }
+
+    return response.json()
+  }
+
+  async getAdminCustomers(): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/customers`, {
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch customers')
+    }
+
+    return response.json()
+  }
+
+  async blockCustomer(customerId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/customers/${customerId}/block`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to block customer')
+    }
+  }
+
+  async unblockCustomer(customerId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/customers/${customerId}/unblock`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders()
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to unblock customer')
+    }
+  }
+
+  async cancelAppointmentAdmin(appointmentId: number): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/api/admin/appointments/${appointmentId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders()
     })
