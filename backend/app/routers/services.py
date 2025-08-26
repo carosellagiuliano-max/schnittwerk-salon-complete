@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from .. import models, schemas
 from ..database import get_db
 
@@ -8,8 +8,8 @@ router = APIRouter()
 
 @router.get("/", response_model=List[schemas.Service])
 async def get_services(
-    category: str = None,
-    service_type: str = None,
+    category: Optional[str] = None,
+    service_type: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     query = db.query(models.Service).filter(models.Service.is_active == True)

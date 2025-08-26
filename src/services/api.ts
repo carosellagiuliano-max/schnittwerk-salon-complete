@@ -1,4 +1,4 @@
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:8000'
+const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'https://app-fpsvflzd.fly.dev'
 
 export interface User {
   id: number
@@ -139,28 +139,50 @@ class ApiService {
   }
 
   async createService(serviceData: any): Promise<any> {
+    const backendData = {
+      name: serviceData.name,
+      description: serviceData.description,
+      category: serviceData.category,
+      service_type: serviceData.service_type,
+      price_from: serviceData.price || serviceData.price_from,
+      duration_minutes: serviceData.duration || serviceData.duration_minutes
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/admin/services`, {
       method: 'POST',
       headers: this.getAuthHeaders(),
-      body: JSON.stringify(serviceData)
+      body: JSON.stringify(backendData)
     })
 
     if (!response.ok) {
-      throw new Error('Failed to create service')
+      const errorData = await response.json().catch(() => ({}))
+      const errorMessage = errorData.detail || 'Failed to create service'
+      throw new Error(errorMessage)
     }
 
     return response.json()
   }
 
   async updateService(serviceId: number, serviceData: any): Promise<any> {
+    const backendData = {
+      name: serviceData.name,
+      description: serviceData.description,
+      category: serviceData.category,
+      service_type: serviceData.service_type,
+      price_from: serviceData.price || serviceData.price_from,
+      duration_minutes: serviceData.duration || serviceData.duration_minutes
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/admin/services/${serviceId}`, {
       method: 'PUT',
       headers: this.getAuthHeaders(),
-      body: JSON.stringify(serviceData)
+      body: JSON.stringify(backendData)
     })
 
     if (!response.ok) {
-      throw new Error('Failed to update service')
+      const errorData = await response.json().catch(() => ({}))
+      const errorMessage = errorData.detail || 'Failed to update service'
+      throw new Error(errorMessage)
     }
 
     return response.json()
@@ -286,7 +308,9 @@ class ApiService {
     })
 
     if (!response.ok) {
-      throw new Error('Failed to create stylist')
+      const errorData = await response.json().catch(() => ({}))
+      const errorMessage = errorData.detail || 'Failed to create stylist'
+      throw new Error(errorMessage)
     }
 
     return response.json()
@@ -300,7 +324,9 @@ class ApiService {
     })
 
     if (!response.ok) {
-      throw new Error('Failed to update stylist')
+      const errorData = await response.json().catch(() => ({}))
+      const errorMessage = errorData.detail || 'Failed to update stylist'
+      throw new Error(errorMessage)
     }
 
     return response.json()
