@@ -203,6 +203,16 @@ async def create_stylist(
     current_admin: models.User = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ):
+    if stylist.email:
+        existing_stylist = db.query(models.Stylist).filter(
+            models.Stylist.email == stylist.email
+        ).first()
+        if existing_stylist:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Ein Stylist mit der E-Mail-Adresse '{stylist.email}' existiert bereits."
+            )
+    
     db_stylist = models.Stylist(**stylist.dict())
     db.add(db_stylist)
     db.commit()
@@ -219,6 +229,17 @@ async def update_stylist(
     db_stylist = db.query(models.Stylist).filter(models.Stylist.id == stylist_id).first()
     if not db_stylist:
         raise HTTPException(status_code=404, detail="Stylist not found")
+    
+    if stylist.email and stylist.email != db_stylist.email:
+        existing_stylist = db.query(models.Stylist).filter(
+            models.Stylist.email == stylist.email,
+            models.Stylist.id != stylist_id
+        ).first()
+        if existing_stylist:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Ein Stylist mit der E-Mail-Adresse '{stylist.email}' existiert bereits."
+            )
     
     for key, value in stylist.dict().items():
         setattr(db_stylist, key, value)
