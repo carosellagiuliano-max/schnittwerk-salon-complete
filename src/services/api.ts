@@ -144,8 +144,8 @@ class ApiService {
       description: serviceData.description,
       category: serviceData.category,
       service_type: serviceData.service_type,
-      price_from: serviceData.price || serviceData.price_from,
-      duration_minutes: serviceData.duration || serviceData.duration_minutes
+      price_from: parseFloat(serviceData.price) || parseFloat(serviceData.price_from) || 0,
+      duration_minutes: parseInt(serviceData.duration) || parseInt(serviceData.duration_minutes) || 60
     }
 
     const response = await fetch(`${API_BASE_URL}/api/admin/services`, {
@@ -169,8 +169,8 @@ class ApiService {
       description: serviceData.description,
       category: serviceData.category,
       service_type: serviceData.service_type,
-      price_from: serviceData.price || serviceData.price_from,
-      duration_minutes: serviceData.duration || serviceData.duration_minutes
+      price_from: parseFloat(serviceData.price) || parseFloat(serviceData.price_from) || 0,
+      duration_minutes: parseInt(serviceData.duration) || parseInt(serviceData.duration_minutes) || 60
     }
 
     const response = await fetch(`${API_BASE_URL}/api/admin/services/${serviceId}`, {
