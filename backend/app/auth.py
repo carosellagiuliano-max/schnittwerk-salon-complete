@@ -17,16 +17,19 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def get_user(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).first()
+def get_profile(db: Session, tenant_id: str, email: str):
+    return db.query(models.Profile).filter(
+        models.Profile.tenant_id == tenant_id,
+        models.Profile.email == email
+    ).first()
 
-def authenticate_user(db: Session, email: str, password: str):
-    user = get_user(db, email)
-    if not user:
+def authenticate_profile(db: Session, tenant_id: str, email: str, password: str):
+    profile = get_profile(db, tenant_id, email)
+    if not profile:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, profile.hashed_password):
         return False
-    return user
+    return profile
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -42,8 +45,9 @@ def verify_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
-        if email is None:
-            return None
-        return email
+        tenant_id: str = payload.get("tenant_id")
+        if email is None or tenant_id is None:
+            return None, None
+        return email, tenant_id
     except JWTError:
-        return None
+        return None, None

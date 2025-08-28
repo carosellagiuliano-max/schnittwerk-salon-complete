@@ -94,6 +94,14 @@ const LoginModal = ({ children }: LoginModalProps) => {
 
       setOpen(false);
       handleBack();
+      
+      if (selectedPortal === 'admin' && user?.is_admin) {
+        window.location.href = '/admin';
+      }
+      
+      if (selectedPortal === 'admin' && user?.is_admin) {
+        window.location.href = '/admin';
+      }
     } catch (error: any) {
       toast({
         title: isRegistering ? 'Registrierung fehlgeschlagen' : 'Anmeldung fehlgeschlagen',
