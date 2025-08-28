@@ -1,111 +1,64 @@
 from sqlalchemy.orm import Session
 from . import models, auth
 from .database import SessionLocal, engine
+import os
 
 def init_database():
     models.Base.metadata.create_all(bind=engine)
     
     db = SessionLocal()
     try:
-        existing_admin = db.query(models.User).filter(models.User.is_admin == True).first()
-        if not existing_admin:
-            admin_user = models.User(
-                email="admin@schnittwerk.com",
-                hashed_password=auth.get_password_hash("admin123"),
-                first_name="Admin",
-                last_name="User",
-                is_admin=True,
-                is_active=True
+        existing_tenant = db.query(models.Tenant).filter(models.Tenant.id == "t_dev").first()
+        if not existing_tenant:
+            tenant = models.Tenant(
+                id="t_dev",
+                name="Schnittwerk Development",
+                domain="localhost"
             )
-            db.add(admin_user)
+            db.add(tenant)
         
-        existing_services = db.query(models.Service).first()
+        existing_admin = db.query(models.Profile).filter(
+            models.Profile.tenant_id == "t_dev",
+            models.Profile.role == "owner"
+        ).first()
+        if existing_admin:
+            existing_admin.email = "admin@schnittwerk.com"
+            existing_admin.hashed_password = auth.get_password_hash("admin123")
+        else:
+            admin_profile = models.Profile(
+                tenant_id="t_dev",
+                email="admin@schnittwerk.com",
+                role="owner",
+                full_name="Admin User",
+                hashed_password=auth.get_password_hash("admin123")
+            )
+            db.add(admin_profile)
+        
+        existing_services = db.query(models.Service).filter(models.Service.tenant_id == "t_dev").first()
         if not existing_services:
             services_data = [
-                {
-                    "name": "Damenschnitt kurz",
-                    "description": "Professioneller Haarschnitt für kurze Haare",
-                    "category": "women",
-                    "service_type": "haircut",
-                    "price_from": 65.0,
-                    "duration_minutes": 60
-                },
-                {
-                    "name": "Damenschnitt lang",
-                    "description": "Professioneller Haarschnitt für lange Haare",
-                    "category": "women", 
-                    "service_type": "haircut",
-                    "price_from": 85.0,
-                    "duration_minutes": 90
-                },
-                {
-                    "name": "Herrenschnitt",
-                    "description": "Klassischer Herrenhaarschnitt",
-                    "category": "men",
-                    "service_type": "haircut", 
-                    "price_from": 45.0,
-                    "duration_minutes": 45
-                },
-                {
-                    "name": "Waschen & Föhnen",
-                    "description": "Haare waschen und föhnen",
-                    "category": "both",
-                    "service_type": "additional",
-                    "price_from": 25.0,
-                    "duration_minutes": 30
-                },
-                {
-                    "name": "Färben",
-                    "description": "Professionelle Haarfärbung",
-                    "category": "both",
-                    "service_type": "additional",
-                    "price_from": 80.0,
-                    "duration_minutes": 120
-                }
+                {"name": "Damenschnitt", "duration_min": 60, "price_cents": 6500},
+                {"name": "Herrenschnitt", "duration_min": 45, "price_cents": 4500},
+                {"name": "Färben", "duration_min": 120, "price_cents": 8000},
             ]
             
             for service_data in services_data:
-                service = models.Service(**service_data)
+                service = models.Service(tenant_id="t_dev", **service_data)
                 db.add(service)
         
-        existing_stylists = db.query(models.Stylist).first()
-        if not existing_stylists:
-            stylists_data = [
-                {
-                    "name": "Maria Schmidt",
-                    "email": "maria@schnittwerk.com",
-                    "phone": "+41 71 123 4567",
-                    "specialties": "Damenschnitte, Färben"
-                },
-                {
-                    "name": "Thomas Müller", 
-                    "email": "thomas@schnittwerk.com",
-                    "phone": "+41 71 123 4568",
-                    "specialties": "Herrenschnitte, Bartpflege"
-                }
+        existing_staff = db.query(models.Staff).filter(models.Staff.tenant_id == "t_dev").first()
+        if not existing_staff:
+            staff_data = [
+                {"name": "Maria Schmidt"},
+                {"name": "Thomas Müller"},
             ]
             
-            for stylist_data in stylists_data:
-                stylist = models.Stylist(**stylist_data)
-                db.add(stylist)
-        
-        existing_availability = db.query(models.StylistAvailability).first()
-        if not existing_availability:
-            for stylist_id in [1, 2]:
-                for day in range(1, 6):
-                    availability = models.StylistAvailability(
-                        stylist_id=stylist_id,
-                        day_of_week=day,
-                        start_time="09:00",
-                        end_time="18:00"
-                    )
-                    db.add(availability)
+            for staff_item in staff_data:
+                staff = models.Staff(tenant_id="t_dev", **staff_item)
+                db.add(staff)
         
         db.commit()
-        print("Database initialized successfully!")
-        
-        from .migrate_products import migrate_products
-        migrate_products()
+        print("Multi-tenant database initialized successfully!")
         
     except Exception as e:
         print(f"Error initializing database: {e}")

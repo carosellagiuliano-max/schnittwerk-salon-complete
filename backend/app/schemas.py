@@ -1,135 +1,126 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, date
 
-class UserBase(BaseModel):
-    email: EmailStr
-    first_name: str
-    last_name: str
-    phone: Optional[str] = None
+class TenantBase(BaseModel):
+    name: str
+    domain: str
+    plan: Optional[str] = "basic"
+    theme_json: Optional[str] = None
 
-class UserCreate(UserBase):
-    password: str
-
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
-
-class User(UserBase):
-    id: int
-    is_admin: bool
-    is_active: bool
-    is_blocked: bool
+class Tenant(TenantBase):
+    id: str
     created_at: datetime
-
+    
     class Config:
         from_attributes = True
+
+class ProfileBase(BaseModel):
+    email: EmailStr
+    role: str  # 'owner', 'admin', 'staff', 'customer'
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+
+class ProfileCreate(ProfileBase):
+    password: str
+
+class Profile(ProfileBase):
+    id: int
+    tenant_id: str
+    is_active: bool
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class ServiceBase(BaseModel):
+    name: str
+    duration_min: int
+    price_cents: int
+
+class Service(ServiceBase):
+    id: int
+    tenant_id: str
+    active: bool
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class StaffBase(BaseModel):
+    name: str
+    image_url: Optional[str] = None
+
+class Staff(StaffBase):
+    id: int
+    tenant_id: str
+    active: bool
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class ScheduleBase(BaseModel):
+    staff_id: int
+    weekday: int
+    start_min: int
+    end_min: int
+
+class Schedule(ScheduleBase):
+    id: int
+    tenant_id: str
+    
+    class Config:
+        from_attributes = True
+
+class TimeOffBase(BaseModel):
+    staff_id: int
+    date_from: date
+    date_to: date
+    reason: Optional[str] = None
+
+class TimeOff(TimeOffBase):
+    id: int
+    tenant_id: str
+    
+    class Config:
+        from_attributes = True
+
+class BookingBase(BaseModel):
+    service_id: int
+    staff_id: int
+    customer_email: str
+    start_at: datetime
+
+class Booking(BookingBase):
+    id: int
+    tenant_id: str
+    end_at: datetime
+    status: str
+    created_by: Optional[str] = None
+    cancelled_by: Optional[str] = None
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class CustomerBanBase(BaseModel):
+    email: EmailStr
+    reason: Optional[str] = None
+
+class CustomerBan(CustomerBanBase):
+    id: int
+    tenant_id: str
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class LoginCredentials(BaseModel):
+    email: EmailStr
+    password: str
 
 class Token(BaseModel):
     access_token: str
     token_type: str
-    user: User
-
-class ServiceBase(BaseModel):
-    name: str
-    description: Optional[str] = None
-    category: str
-    service_type: str
-    price_from: float
-    duration_minutes: int
-
-class Service(ServiceBase):
-    id: int
-    is_active: bool
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-class StylistBase(BaseModel):
-    name: str
-    email: Optional[EmailStr] = None
-    phone: Optional[str] = None
-    specialties: Optional[str] = None
-
-class Stylist(StylistBase):
-    id: int
-    is_active: bool
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-class AppointmentCreate(BaseModel):
-    stylist_id: int
-    service_id: int
-    appointment_date: datetime
-    additional_services: Optional[List[int]] = []
-    notes: Optional[str] = None
-
-class Appointment(BaseModel):
-    id: int
-    customer_id: int
-    stylist_id: int
-    service_id: int
-    appointment_date: datetime
-    duration_minutes: int
-    total_price: float
-    status: str
-    additional_services: Optional[str] = None
-    notes: Optional[str] = None
-    created_at: datetime
-    customer: User
-    stylist: Stylist
-    service: Service
-
-    class Config:
-        from_attributes = True
-
-class AvailabilitySlot(BaseModel):
-    date: str
-    time: str
-    stylist_id: int
-    stylist_name: str
-    available: bool
-
-class ProductBase(BaseModel):
-    name: str
-    description: Optional[str] = None
-    detailed_description: Optional[str] = None
-    usage: Optional[str] = None
-    price: str
-    image: str
-    category: str
-
-class Product(ProductBase):
-    id: int
-    is_active: bool
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-class ProductCategoryBase(BaseModel):
-    name: str
-
-class ProductCategory(ProductCategoryBase):
-    id: int
-    is_active: bool
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-class StylistAvailabilityBase(BaseModel):
-    stylist_id: int
-    day_of_week: int
-    start_time: str
-    end_time: str
-
-class StylistAvailability(StylistAvailabilityBase):
-    id: int
-    is_active: bool
-
-    class Config:
-        from_attributes = True
+    profile: Profile

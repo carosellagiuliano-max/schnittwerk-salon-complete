@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 
 const AdminDashboard = () => {
-  const { user, logout } = useAuth();
+  const { profile, isAdmin, logout } = useAuth();
   const [appointments, setAppointments] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [services, setServices] = useState([]);
@@ -59,11 +59,11 @@ const AdminDashboard = () => {
   const loadData = async () => {
     try {
       const [appointmentsData, customersData, servicesData, productsData, stylistsData] = await Promise.all([
-        apiService.getAdminAppointments(),
+        apiService.getAdminBookings(),
         apiService.getAdminCustomers(),
         apiService.getServices(),
         apiService.getProducts(),
-        apiService.getStylists()
+        apiService.getAdminStaff()
       ]);
       
       setAppointments(appointmentsData);
@@ -109,10 +109,10 @@ const AdminDashboard = () => {
     e.preventDefault();
     try {
       if (editingStylist) {
-        await apiService.updateStylist(editingStylist.id, stylistForm);
+        await apiService.updateStaff(editingStylist.id, stylistForm);
         showToast('Stylist aktualisiert');
       } else {
-        await apiService.createStylist(stylistForm);
+        await apiService.createStaff(stylistForm);
         showToast('Stylist erstellt');
       }
       setShowStylistDialog(false);
@@ -167,7 +167,7 @@ const AdminDashboard = () => {
 
   const handleDeleteStylist = async (stylistId) => {
     try {
-      await apiService.deleteStylist(stylistId);
+      await apiService.deleteStaff(stylistId);
       showToast('Stylist gelöscht');
       loadData();
     } catch (error) {
@@ -177,7 +177,7 @@ const AdminDashboard = () => {
 
   const handleBlockCustomer = async (customerId) => {
     try {
-      await apiService.blockCustomer(customerId);
+      await apiService.banCustomer(`customer${customerId}@example.com`);
       showToast('Kunde gesperrt');
       loadData();
     } catch (error) {
@@ -187,7 +187,7 @@ const AdminDashboard = () => {
 
   const handleUnblockCustomer = async (customerId) => {
     try {
-      await apiService.unblockCustomer(customerId);
+      await apiService.unbanCustomer(`customer${customerId}@example.com`);
       showToast('Kunde entsperrt');
       loadData();
     } catch (error) {
@@ -197,7 +197,7 @@ const AdminDashboard = () => {
 
   const handleCancelAppointment = async (appointmentId) => {
     try {
-      await apiService.cancelAppointmentAdmin(appointmentId);
+      await apiService.adminCancelBooking(appointmentId);
       showToast('Termin storniert');
       loadData();
     } catch (error) {
@@ -244,12 +244,12 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    if (user?.is_admin) {
+    if (isAdmin) {
       loadData();
     }
-  }, [user]);
+  }, [isAdmin]);
 
-  if (!user?.is_admin) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -288,7 +288,7 @@ const AdminDashboard = () => {
           <div className="flex justify-between items-center h-16">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-sm text-gray-600">Willkommen, {user.first_name}</p>
+              <p className="text-sm text-gray-600">Willkommen, {profile?.full_name || profile?.email}</p>
             </div>
             <Button
               onClick={logout}

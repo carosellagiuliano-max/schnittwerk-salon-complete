@@ -1,11 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
-from .routers import auth, appointments, admin, services
+from .middleware import TenantMiddleware
+from .routers import auth, admin, services, availability, bookings
+import os
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Schnittwerk Salon API", version="1.0.0")
+app = FastAPI(title="Schnittwerk Multi-Tenant Salon API", version="2.0.0")
+
+app.add_middleware(TenantMiddleware)
 
 # Disable CORS. Do not remove this for full-stack development.
 app.add_middleware(
@@ -17,8 +21,9 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/api/auth", tags=["authentication"])
-app.include_router(appointments.router, prefix="/api/appointments", tags=["appointments"])
 app.include_router(services.router, prefix="/api/services", tags=["services"])
+app.include_router(availability.router, prefix="/api", tags=["availability"])
+app.include_router(bookings.router, prefix="/api/bookings", tags=["bookings"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 
 @app.get("/healthz")
@@ -27,4 +32,4 @@ async def healthz():
 
 @app.get("/")
 async def root():
-    return {"message": "Schnittwerk Salon API"}
+    return {"message": "Schnittwerk Multi-Tenant Salon API v2.0"}

@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { apiService, User, LoginCredentials, RegisterData } from '@/services/api'
+import { apiService, Profile, LoginCredentials, RegisterData } from '@/services/api'
 
 interface AuthContextType {
-  user: User | null
+  profile: Profile | null
   isAuthenticated: boolean
+  isAdmin: boolean
   isLoading: boolean
   login: (credentials: LoginCredentials) => Promise<void>
   register: (userData: RegisterData) => Promise<void>
@@ -13,15 +14,15 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const initAuth = async () => {
       if (apiService.isAuthenticated()) {
         try {
-          const currentUser = await apiService.getCurrentUser()
-          setUser(currentUser)
+          const currentProfile = await apiService.getCurrentProfile()
+          setProfile(currentProfile)
         } catch (error) {
           apiService.logout()
         }
@@ -34,22 +35,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (credentials: LoginCredentials) => {
     const response = await apiService.login(credentials)
-    setUser(response.user)
+    setProfile(response.profile)
   }
 
   const register = async (userData: RegisterData) => {
     const response = await apiService.register(userData)
-    setUser(response.user)
+    setProfile(response.profile)
   }
 
   const logout = () => {
     apiService.logout()
-    setUser(null)
+    setProfile(null)
   }
 
   const value = {
-    user,
-    isAuthenticated: !!user,
+    profile,
+    isAuthenticated: !!profile,
+    isAdmin: profile ? (profile.role === 'owner' || profile.role === 'admin') : false,
     isLoading,
     login,
     register,
